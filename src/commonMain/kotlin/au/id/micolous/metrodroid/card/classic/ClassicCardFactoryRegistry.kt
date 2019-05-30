@@ -16,6 +16,7 @@ import au.id.micolous.metrodroid.transit.msp_goto.MspGotoTransitData
 import au.id.micolous.metrodroid.transit.nextfare.NextfareTransitData
 import au.id.micolous.metrodroid.transit.otago.OtagoGoCardTransitFactory
 import au.id.micolous.metrodroid.transit.ovc.OVChipTransitData
+import au.id.micolous.metrodroid.transit.oyster.OysterTransitData
 import au.id.micolous.metrodroid.transit.podorozhnik.PodorozhnikTransitData
 import au.id.micolous.metrodroid.transit.ricaricami.RicaricaMiTransitData
 import au.id.micolous.metrodroid.transit.rkf.RkfTransitData
@@ -66,6 +67,7 @@ object ClassicCardFactoryRegistry {
             KomuterLinkTransitFactory(),
             BonobusTransitFactory,
             GautrainTransitFactory(),
+            OysterTransitData.FACTORY,
 
             // This check must be THIRD TO LAST.
             //
