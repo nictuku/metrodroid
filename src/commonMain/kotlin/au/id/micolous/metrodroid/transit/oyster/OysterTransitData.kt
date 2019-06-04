@@ -24,8 +24,6 @@ import au.id.micolous.metrodroid.card.classic.ClassicCardTransitFactory
 import au.id.micolous.metrodroid.card.classic.ClassicSector
 import au.id.micolous.metrodroid.multi.Parcelize
 import au.id.micolous.metrodroid.multi.R
-import au.id.micolous.metrodroid.time.Epoch
-import au.id.micolous.metrodroid.time.MetroTimeZone
 import au.id.micolous.metrodroid.transit.*
 import au.id.micolous.metrodroid.util.ImmutableByteArray
 import au.id.micolous.metrodroid.util.NumberUtils
@@ -41,7 +39,8 @@ import au.id.micolous.metrodroid.util.NumberUtils
 data class OysterTransitData(
         private val mSerial: Int,
         override val balance: OysterPurse?,
-        val transactions: List<OysterTransaction>
+        val transactions: List<OysterTransaction>,
+        val refills: List<OysterRefill>
 ) : TransitData() {
 
     override val serialNumber get() = formatSerial(mSerial)
@@ -49,16 +48,16 @@ data class OysterTransitData(
     override val cardName get() = NAME
 
     override val trips: List<Trip>?
-        get() = TransactionTrip.merge(transactions)
+        get() = TransactionTrip.merge(transactions) + refills
 
     private constructor(card: ClassicCard) : this(
             mSerial = getSerial(card),
             balance = OysterPurse.parse(card),
-            transactions = OysterTransaction.parseAll(card).toList())
+            transactions = OysterTransaction.parseAll(card).toList(),
+            refills = OysterRefill.parseAll(card).toList())
 
     companion object {
         private const val NAME = "Oyster"
-        internal val EPOCH = Epoch.local(1980, MetroTimeZone.LONDON)
         private val MAGIC_BLOCK_1 = ImmutableByteArray.fromHex("964142434445464748494A4B4C4D0101")
 
 

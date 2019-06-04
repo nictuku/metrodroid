@@ -1,5 +1,5 @@
 /*
- * OysterTransaction.kt
+ * OysterRefill.kt
  *
  * Copyright 2019 Michael Farrell <micolous+git@gmail.com>
  *
@@ -22,35 +22,27 @@ import au.id.micolous.metrodroid.card.classic.ClassicCard
 import au.id.micolous.metrodroid.multi.Log
 import au.id.micolous.metrodroid.multi.Parcelize
 import au.id.micolous.metrodroid.time.Timestamp
-import au.id.micolous.metrodroid.transit.Transaction
 import au.id.micolous.metrodroid.transit.TransitCurrency
 import au.id.micolous.metrodroid.transit.TransitData
+import au.id.micolous.metrodroid.transit.Trip
 import au.id.micolous.metrodroid.util.ImmutableByteArray
-import kotlinx.serialization.Transient
 
 @Parcelize
-class OysterTransaction(
-        override val timestamp: Timestamp,
+class OysterRefill(
+        override val startTimestamp: Timestamp,
+        private val amount: Int,
         // TODO: implement better
         private val rawRecord: ImmutableByteArray = ImmutableByteArray.empty()
-) : Transaction() {
-    // TODO: implement
-    @Transient
-    override val isTapOff: Boolean
-        get() = false
-    // TODO: implement
-    @Transient
+) : Trip() {
     override val fare: TransitCurrency?
-        get() = null
-    // TODO: implement
-    @Transient
-    override val isTapOn: Boolean
-        get() = true
-    // TODO: implement
-    override fun isSameTrip(other: Transaction) = false
+        get() = TransitCurrency.GBP(-amount)
+    override val mode: Mode
+        get() = Mode.TICKET_MACHINE
 
     internal constructor(record: ImmutableByteArray) : this(
-            timestamp = OysterUtils.parseTimestamp(record, 6),
+            startTimestamp = OysterUtils.parseTimestamp(record),
+            // estimate: £85 max top-up requires 14 bits
+            amount = record.getBitsFromBufferLeBits(74, 14),
             rawRecord = record
     )
 
@@ -63,18 +55,16 @@ class OysterTransaction(
 
     companion object {
         internal fun parseAll(card: ClassicCard) = sequence {
-            for (sector in 9..13) {
+            for (sector in listOf(5)) {
                 for (block in 0..2) {
-                    // invalid
-                    if (block == 0 && sector == 9) continue
-
                     try {
-                        yield(OysterTransaction(card[sector, block].data))
+                        yield(OysterRefill(card[sector, block].data))
                     } catch (ex: Exception) {
-                        Log.d("OysterTxn", "Parse error", ex)
+                        Log.d("OysterRefill", "Parse error", ex)
                     }
                 }
             }
         }
     }
+
 }
