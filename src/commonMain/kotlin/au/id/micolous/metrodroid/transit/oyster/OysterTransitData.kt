@@ -24,26 +24,41 @@ import au.id.micolous.metrodroid.card.classic.ClassicCardTransitFactory
 import au.id.micolous.metrodroid.card.classic.ClassicSector
 import au.id.micolous.metrodroid.multi.Parcelize
 import au.id.micolous.metrodroid.multi.R
-import au.id.micolous.metrodroid.transit.CardInfo
-import au.id.micolous.metrodroid.transit.TransitIdentity
-import au.id.micolous.metrodroid.transit.serialonly.SerialOnlyTransitData
+import au.id.micolous.metrodroid.time.Epoch
+import au.id.micolous.metrodroid.time.MetroTimeZone
+import au.id.micolous.metrodroid.transit.*
 import au.id.micolous.metrodroid.util.ImmutableByteArray
 import au.id.micolous.metrodroid.util.NumberUtils
 
+/**
+ * Oyster (Transport for London) on MIFARE Classic
+ *
+ * This is for old format cards that are **not** labelled with "D".
+ *
+ * Reference: https://github.com/micolous/metrodroid/wiki/Oyster
+ */
 @Parcelize
-data class OysterTransitData(private val mSerial: Int = 0) : SerialOnlyTransitData() {
+data class OysterTransitData(
+        private val mSerial: Int,
+        override val balance: OysterPurse?,
+        val transactions: List<OysterTransaction>
+) : TransitData() {
 
     override val serialNumber get() = formatSerial(mSerial)
 
-    override val reason
-        get() = Reason.MORE_RESEARCH_NEEDED
-
     override val cardName get() = NAME
 
-    private constructor(card: ClassicCard) : this(getSerial(card))
+    override val trips: List<Trip>?
+        get() = TransactionTrip.merge(transactions)
+
+    private constructor(card: ClassicCard) : this(
+            mSerial = getSerial(card),
+            balance = OysterPurse.parse(card),
+            transactions = OysterTransaction.parseAll(card).toList())
 
     companion object {
         private const val NAME = "Oyster"
+        internal val EPOCH = Epoch.local(1980, MetroTimeZone.LONDON)
         private val MAGIC_BLOCK_1 = ImmutableByteArray.fromHex("964142434445464748494A4B4C4D0101")
 
 
