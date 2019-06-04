@@ -40,7 +40,8 @@ data class OysterTransitData(
         private val mSerial: Int,
         override val balance: OysterPurse?,
         val transactions: List<OysterTransaction>,
-        val refills: List<OysterRefill>
+        val refills: List<OysterRefill>,
+        val passes: List<OysterTravelPass>
 ) : TransitData() {
 
     override val serialNumber get() = formatSerial(mSerial)
@@ -50,11 +51,15 @@ data class OysterTransitData(
     override val trips: List<Trip>?
         get() = TransactionTrip.merge(transactions) + refills
 
+    override val subscriptions: List<Subscription>
+        get() = passes
+
     private constructor(card: ClassicCard) : this(
             mSerial = getSerial(card),
             balance = OysterPurse.parse(card),
             transactions = OysterTransaction.parseAll(card).toList(),
-            refills = OysterRefill.parseAll(card).toList())
+            refills = OysterRefill.parseAll(card).toList(),
+            passes = OysterTravelPass.parseAll(card).toList())
 
     companion object {
         private const val NAME = "Oyster"
