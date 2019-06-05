@@ -1709,7 +1709,7 @@
     <string name="card_note_leap">Requires retrieving keys from TFI, which must be enabled in the NFC Preferences screen.</string>
 
     <!-- Oyster (London, UK) -->
-    <string name="card_note_oyster">Only first generation (MIFARE Classic) cards are supported. Only the serial number is read. Current generation cards (which have a "D" printed on the bottom left corner) are fully locked DESFire cards, and thus unsupportable.</string>
+    <string name="card_note_oyster">Only first generation (MIFARE Classic) cards are supported. Current generation cards (which have a "D" printed on the bottom left corner) are fully locked DESFire cards, and thus unsupportable.</string>
 
     <string name="lisboaviva_unknown_period">Unknown validity %x/%x</string>
     <!--
