@@ -31,6 +31,7 @@ import kotlinx.serialization.Transient
 @Parcelize
 class OysterTransaction(
         override val timestamp: Timestamp,
+        override val routeNames: List<String>,
         // TODO: implement better
         private val rawRecord: ImmutableByteArray = ImmutableByteArray.empty()
 ) : Transaction() {
@@ -49,8 +50,9 @@ class OysterTransaction(
     // TODO: implement
     override fun isSameTrip(other: Transaction) = false
 
-    internal constructor(record: ImmutableByteArray) : this(
+    internal constructor(record: ImmutableByteArray, sector: Int, block: Int) : this(
             timestamp = OysterUtils.parseTimestamp(record, 6),
+            routeNames = listOf("s$sector / b$block"),
             rawRecord = record
     )
 
@@ -69,7 +71,7 @@ class OysterTransaction(
                     if (block == 0 && sector == 9) continue
 
                     try {
-                        yield(OysterTransaction(card[sector, block].data))
+                        yield(OysterTransaction(card[sector, block].data, sector, block))
                     } catch (ex: Exception) {
                         Log.d("OysterTxn", "Parse error", ex)
                     }
