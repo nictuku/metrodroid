@@ -1,0 +1,31 @@
+
+dependencies:
+  build:
+    - android:3859397
+    - androidndk:r15c
+    - java:8.202.08
+    - gradle:5.4.1
+  runtime:
+    - android:3859397
+    - androidndk:r15c
+    - java:8.202.08
+    - gradle:5.4.1
+ 
+build_targets:
+  - name: default
+    commands:
+      - git submodule init
+      - git submodule update
+      - sdkmanager tools
+      - sdkmanager platform-tools
+      - sdkmanager build-tools;28.0.3
+      - sdkmanager --install platforms;android-16
+      - sdkmanager --install system-images;android-16;default;armeabi-v7a
+      - chmod u+x before_install.sh
+      - ./before_install.sh
+      - ./gradlew build connectedCheck
+
+ci:
+  builds:
+    - name: android_build
+      build_target: default
