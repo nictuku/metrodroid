@@ -23,6 +23,7 @@ build_targets:
       - sdkmanager --install system-images;android-16;default;armeabi-v7a
       - chmod u+x before_install.sh
       - ./before_install.sh
+      - cd /root/.yourbase/tools
       - ./gradlew build connectedCheck
 
 ci:
